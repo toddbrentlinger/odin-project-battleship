@@ -25,7 +25,7 @@ class GameboardComponent extends BaseComponent {
                     }
                     // Else NOT first column 
                     else {
-                        content = String.fromCharCode('A'.charCodeAt(0) + j - 1);
+                        content = j;
                     }
 
                     rowElement.appendChild(createElement('th', {}, 
@@ -37,7 +37,7 @@ class GameboardComponent extends BaseComponent {
                     // If first column
                     if (j === 0) {
                         rowElement.appendChild(createElement('th', {}, 
-                            createElement('span', {}, i - 1)
+                            createElement('span', {}, String.fromCharCode('A'.charCodeAt(0) + i - 1))
                         ));
                     }
                     // Else NOT first column 

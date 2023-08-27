@@ -4,6 +4,10 @@ import HeaderComponent from './components/headerComponent';
 import GameboardComponent from './components/gameboardComponent';
 import FooterComponent from './components/footerComponent';
 import { createElement } from './utilities';
+import Gameboard from './game/gameboard';
+
+window.gameboard = Gameboard();
+gameboard.init();
 
 document.body.append(
     new HeaderComponent({
