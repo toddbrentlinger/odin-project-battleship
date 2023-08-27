@@ -3,6 +3,10 @@
 :root {
     --base-white: hsl(0, 0%, 95%);
     --base-black: hsl(0, 0%, 10%);
+
+    --primary-bg: #455a64;
+    --primary-bg-light: rgb(120, 144, 156);
+    --primary-bg-dark: rgb(38, 50, 56);
 }
 
 html {
@@ -34,6 +38,13 @@ header {
     padding: 0.5em 1em;
     border-bottom: 2px solid var(--base-black, black);
     font-size: 2rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+
+    .logo {
+        height: 3rem;
+    }
 }
 
 main {
@@ -82,8 +93,6 @@ footer {
         td, th {
             box-sizing: border-box;
             border: 2px solid black;
-            // width: 1rem;
-            // height: 1rem;
         }
     
         td {
