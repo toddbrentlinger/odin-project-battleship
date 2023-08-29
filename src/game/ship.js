@@ -1,4 +1,4 @@
-export default function Ship(length) {
+export default function Ship(name, length) {
     let hits = 0;
 
     const hit = () => {
@@ -11,5 +11,8 @@ export default function Ship(length) {
 
     return {
         get length() { return length; },
+        get name() { return name; },
+        hit,
+        isSunk,
     };
 }
