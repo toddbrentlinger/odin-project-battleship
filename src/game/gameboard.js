@@ -1,3 +1,4 @@
+import { capitalize } from "../utilities";
 import Ship from "./ship";
 
 function GameboardNode() {
@@ -5,11 +6,14 @@ function GameboardNode() {
     let isAttacked = false;
 
     const recieveAttack = () => {
+        isAttacked = true;
+
         if (ship) {
             ship.hit();
         }
 
-        isAttacked = true;
+        // Return Ship reference OR NULL if no Ship in node
+        return ship;
     };
 
     return {
@@ -24,7 +28,21 @@ function GameboardNode() {
 
 export default function Gameboard(size = 10) {
     const board = [];
+    const ships = [
+        Ship('carrier', 5),
+        Ship('battleship', 4),
+        Ship('destroyer', 3),
+        Ship('submarine', 3),
+        Ship('patrol boat', 2),
+    ];
 
+    /**
+     * Add Ship to gameboard with valid coordinates and orientation.
+     * @param {Ship} ship Ship instance reference
+     * @param {Number} x Horizontal coordinate
+     * @param {Number} y Vertical coordinate
+     * @param {Boolean} isHorizontal True if ship is horizontal and false if vertical
+     */
     const addPieceToBoard = (ship, x, y, isHorizontal) => {
         for (let n = ship.length; n > 0; n--) {
             board[x][y].ship = ship;
@@ -36,6 +54,10 @@ export default function Gameboard(size = 10) {
         }
     };
 
+    /**
+     * Add Ship to board with valid, random coordinates and orientation.
+     * @param {Ship} ship Ship instance reference
+     */
     const addRandomShipPosition = (ship) => {
         let x, y, isHorizontal, validObj;
         let isValid = false;
@@ -64,6 +86,10 @@ export default function Gameboard(size = 10) {
         addPieceToBoard(ship, x, y, isHorizontal);
     };
 
+    const areAllShipsSunk = () => {
+        return ships.every((ship) => ship.isSunk());
+    };
+
     const init = () => {
         // Create board
         for (let row = 0; row < size; row++) {
@@ -74,16 +100,20 @@ export default function Gameboard(size = 10) {
             }
         }
 
-        // Add pieces with random position and orientations
-        addRandomShipPosition(Ship('carrier', 5));
-        addRandomShipPosition(Ship('battleship', 4));
-        addRandomShipPosition(Ship('destroyer', 3));
-        addRandomShipPosition(Ship('submarine', 3));
-        addRandomShipPosition(Ship('patrol boat', 2));
+        // Add ships with random position and orientations
+        ships.forEach((ship) => addRandomShipPosition(ship));
 
         printBoard();
     };
 
+    /**
+     * @todo Rename to adjust/clamp coordinates to board dimension and just return coords
+     * @param {Number} shipLength Length of Ship
+     * @param {Number} x Horizontal coordinate
+     * @param {Number} y Vertical coordinate
+     * @param {Boolean} isHorizontal True if ship is horizontal and false if vertical
+     * @returns {Object}
+     */
     const checkPieceIsWithinBoard = (shipLength, x, y, isHorizontal) => {
         let isValid = true;
         // Clamp x to size
@@ -112,10 +142,14 @@ export default function Gameboard(size = 10) {
         };
     };
 
-    const isHit = (x, y) => {
-
-    };
-
+    /**
+     * Return true if ship properties are overlapping with existing ship on board.
+     * @param {Number} shipLength Length of Ship
+     * @param {Number} x Horizontal coordinate
+     * @param {Number} y Vertical coordinate
+     * @param {Boolean} isHorizontal True if ship is horizontal and false if vertical
+     * @returns {Boolean}
+     */
     const isPieceOverlapping = (shipLength, x, y, isHorizontal) => {
         for (let n = shipLength; n > 0; n--) {
             if (board[x][y].ship !== null) {
@@ -132,6 +166,7 @@ export default function Gameboard(size = 10) {
         return false;
     };
 
+    /* Print game board to console. */
     const printBoard = () => {
         let boardStr = '';
 
@@ -160,15 +195,32 @@ export default function Gameboard(size = 10) {
             throw new Error('Coordinates have already been attacked');
         }
 
-        board[x][y].recieveAttack();
+        const target = board[x][y].recieveAttack();
+
+        // If target was hit
+        if (target) {
+            console.log(`Hit! ${capitalize(target.name)}!`);
+
+            // Check if ship has sunk
+            if (target.isSunk()) {
+                console.log(`You sunk my ${capitalize(target.name)}!`);
+            }
+        } 
+        // Else target was a miss
+        else {
+            console.log('Miss!');
+        }
 
         printBoard();
+
+        return target;
     };
 
     return {
         get board() { return board; },
         checkPieceIsWithinBoard,
         init,
+        printBoard,
         recieveAttack,
     };
 }
