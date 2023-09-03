@@ -5,6 +5,10 @@ function GameboardNode() {
     let ship = null;
     let isAttacked = false;
 
+    /**
+     * 
+     * @returns {Ship|null}
+     */
     const recieveAttack = () => {
         isAttacked = true;
 
@@ -43,9 +47,13 @@ export default function Gameboard(size = 10) {
      * @param {Number} y Vertical coordinate
      * @param {Boolean} isHorizontal True if ship is horizontal and false if vertical
      */
-    const addPieceToBoard = (ship, x, y, isHorizontal) => {
+    const addShipToBoard = (ship, x, y, isHorizontal) => {
+        // Remove ship from any gameboard nodes
+        removeShipFromBoard(ship);
+
+        // Add ship to new gameboard nodes
         for (let n = ship.length; n > 0; n--) {
-            board[x][y].ship = ship;
+            board[y][x].ship = ship;
             if (isHorizontal) {
                 x++;
             } else {
@@ -55,11 +63,30 @@ export default function Gameboard(size = 10) {
     };
 
     /**
+     * Add Ship to gameboard with valid coordinates and orientation.
+     * @param {Ship} ship Ship instance reference
+     * @param {Number} x Horizontal coordinate
+     * @param {Number} y Vertical coordinate
+     * @param {Boolean} isHorizontal True if ship is horizontal and false if vertical
+     */
+    const addShipToBoardCustom = (ship, x, y, isHorizontal) => {
+        // Check piece is within board and get adjusted coordinates if NOT
+        [x, y] = clampCoordinatesToBoard(ship.length, x, y, isHorizontal);
+
+        if (isPieceOverlapping(ship, x, y, isHorizontal)) {
+            throw new Error('Ship is overlapping!');
+        }
+
+        // Add ship to board
+        addShipToBoard(ship, x, y, isHorizontal);
+    };
+
+    /**
      * Add Ship to board with valid, random coordinates and orientation.
      * @param {Ship} ship Ship instance reference
      */
-    const addRandomShipPosition = (ship) => {
-        let x, y, isHorizontal, validObj;
+    const addShipToBoardRandom = (ship) => {
+        let x, y, isHorizontal;
         let isValid = false;
 
         while (!isValid) {
@@ -71,25 +98,52 @@ export default function Gameboard(size = 10) {
             y = Math.floor(Math.random() * size);
 
             // Check piece is within board and get adjusted coordinates if NOT
-            validObj = checkPieceIsWithinBoard(ship.length, x, y, isHorizontal);
-
-            // If original coordinates are invalid, set to adjusted coordinates 
-            if (!validObj.isValid) {
-                x = validObj.x;
-                y = validObj.y;
-            }
+            [x, y] = clampCoordinatesToBoard(ship.length, x, y, isHorizontal);
 
             // Check if piece is overlapping with any other piece
-            isValid = !isPieceOverlapping(ship.length, x, y, isHorizontal);
+            isValid = !isPieceOverlapping(ship, x, y, isHorizontal);
         }
-
-        addPieceToBoard(ship, x, y, isHorizontal);
+        
+        // Add ship to board
+        addShipToBoard(ship, x, y, isHorizontal);
     };
 
+    /**
+     * 
+     * @returns {Boolean}
+     */
     const areAllShipsSunk = () => {
         return ships.every((ship) => ship.isSunk());
     };
 
+    /**
+     * Clamp coordinates to board dimension
+     * @param {Number} shipLength Length of Ship
+     * @param {Number} x Horizontal coordinate
+     * @param {Number} y Vertical coordinate
+     * @param {Boolean} isHorizontal True if ship is horizontal and false if vertical
+     * @returns {Array} Array of x,y coordinates, adjusted if necessary
+     */
+    const clampCoordinatesToBoard = (shipLength, x, y, isHorizontal) => {
+        // Clamp x to size
+        if (x < 0) {
+            x = 0;
+        } else if (x > size - (isHorizontal ? shipLength : 1)) {
+            x = size - (isHorizontal ? shipLength : 1);
+        }
+
+        // Clamp y to size
+        if (y < 0) {
+            y = 0;
+        } else if (y > size - (!isHorizontal ? shipLength : 1)) {
+            y = size - (!isHorizontal ? shipLength : 1);
+        }
+
+        // Return valid coordinates that are shifted if initial coordinates are invalid
+        return [x, y];
+    };
+
+    /** Initialize gameboard instance */
     const init = () => {
         // Create board
         for (let row = 0; row < size; row++) {
@@ -101,61 +155,27 @@ export default function Gameboard(size = 10) {
         }
 
         // Add ships with random position and orientations
-        ships.forEach((ship) => addRandomShipPosition(ship));
+        ships.forEach((ship) => addShipToBoardRandom(ship));
 
         printBoard();
     };
 
     /**
-     * @todo Rename to adjust/clamp coordinates to board dimension and just return coords
-     * @param {Number} shipLength Length of Ship
-     * @param {Number} x Horizontal coordinate
-     * @param {Number} y Vertical coordinate
-     * @param {Boolean} isHorizontal True if ship is horizontal and false if vertical
-     * @returns {Object}
-     */
-    const checkPieceIsWithinBoard = (shipLength, x, y, isHorizontal) => {
-        let isValid = true;
-        // Clamp x to size
-        if (x < 0) {
-            isValid = false;
-            x = 0;
-        } else if (x > size - (isHorizontal ? shipLength : 1)) {
-            isValid = false;
-            x = size - (isHorizontal ? shipLength : 1);
-        }
-
-        // Clamp y to size
-        if (y < 0) {
-            isValid = false;
-            y = 0;
-        } else if (y > size - (!isHorizontal ? shipLength : 1)) {
-            isValid = false;
-            y = size - (!isHorizontal ? shipLength : 1);
-        }
-
-        // Return valid flag and valid coordinates that are shifted if initial coordinates are invalid
-        return {
-            isValid,
-            x,
-            y,
-        };
-    };
-
-    /**
-     * Return true if ship properties are overlapping with existing ship on board.
-     * @param {Number} shipLength Length of Ship
+     * Return true if ship properties are overlapping with another ship on board.
+     * @param {Ship} ship reference to Ship instance
      * @param {Number} x Horizontal coordinate
      * @param {Number} y Vertical coordinate
      * @param {Boolean} isHorizontal True if ship is horizontal and false if vertical
      * @returns {Boolean}
      */
-    const isPieceOverlapping = (shipLength, x, y, isHorizontal) => {
-        for (let n = shipLength; n > 0; n--) {
-            if (board[x][y].ship !== null) {
+    const isPieceOverlapping = (ship, x, y, isHorizontal) => {
+        for (let n = ship.length; n > 0; n--) {
+            // Return true if gameboard node is NOT empty AND does NOT already have same Ship on it
+            if (board[y][x].ship !== null && board[y][x] !== ship) {
                 return true;
             }
 
+            // Increment gameboard node based on horizontal flag
             if (isHorizontal) {
                 x++;
             } else {
@@ -163,6 +183,7 @@ export default function Gameboard(size = 10) {
             }
         }
 
+        // If reach here, ship is NOT overlapping another ship
         return false;
     };
 
@@ -191,11 +212,11 @@ export default function Gameboard(size = 10) {
         }
 
         // Check coordinates have NOT already been attacked
-        if (board[x][y].isAttacked) {
+        if (board[y][x].isAttacked) {
             throw new Error('Coordinates have already been attacked');
         }
 
-        const target = board[x][y].recieveAttack();
+        const target = board[y][x].recieveAttack();
 
         // If target was hit
         if (target) {
@@ -216,10 +237,28 @@ export default function Gameboard(size = 10) {
         return target;
     };
 
+    /**
+     * 
+     * @param {Ship} ship 
+     */
+    const removeShipFromBoard = (ship) => {
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                if (board[y][x].ship === ship) {
+                    board[y][x].ship = null;
+                }
+            }
+        }
+    };
+
     return {
         get board() { return board; },
-        checkPieceIsWithinBoard,
+        get ships() { return ships; },
+        addShipToBoardCustom,
+        addShipToBoardRandom,
+        clampCoordinatesToBoard,
         init,
+        isPieceOverlapping,
         printBoard,
         recieveAttack,
     };
