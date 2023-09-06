@@ -1,6 +1,6 @@
 import Gameboard from "./gameboard";
 
-class GameState {
+export class GameState {
     static Preparation = new GameState('preparation');
     static Playing = new GameState('playing');
     static Finished = new GameState('finished');
@@ -97,6 +97,8 @@ const Game = (() => {
         get playerBoard() { return gameboards.player; },
         get computerBoard() { return gameboards.computer; },
         get isPlayersTurn() { return isPlayersTurn; },
+        get size() { return boardSize; },
+        get state() { return state; },
         enterPlayerAttack,
         makeComputerAttack,
     };
