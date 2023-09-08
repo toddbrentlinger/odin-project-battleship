@@ -93,6 +93,14 @@ footer {
         td, th {
             box-sizing: border-box;
             border: 2px solid black;
+
+            span {
+                width: 100%;
+                height: 100%;
+                display: grid;
+                align-content: center;
+                justify-content: center;
+            }
         }
     
         td {

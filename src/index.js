@@ -5,9 +5,10 @@ import GameboardComponent from './components/gameboardComponent';
 import FooterComponent from './components/footerComponent';
 import { createElement } from './utilities';
 import Game from './game/game';
+import GameLoopConsole from './game/gameLoopConsole';
 
-window.game = Game;
-Game.createNew();
+// window.game = Game;
+// Game.createNew();
 
 document.body.append(
     new HeaderComponent({
@@ -22,3 +23,5 @@ document.body.append(
         sourceCodeURL: 'https://github.com/toddbrentlinger/odin-project-battleship'
     }).render(),
 );
+
+GameLoopConsole.play();

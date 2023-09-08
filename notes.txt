@@ -1,0 +1,72 @@
+Ship
+
+Gameboard
+    Graph Data Structure?
+
+GameboardNode
+    x {Number(0-9)}
+    y {Number(0-9)}
+    edges {[GameboardNode|null]} [up, right, down, left] 
+
+GamePiece
+    ship {Ship}
+    x position
+    y position
+    isHorizontal {Boolean}
+
+    If piece is horizontal, x,y origin is on the left
+    If peice is vertical, x,y origin is on the top
+
+9/3/23
+
+- Maybe gameboard.recieveAttack(x,y) returns object with following data:
+    ship: Ship reference if hit or null if miss
+    areAllShipsSunk: boolean uses to end game if true
+
+8/31/23
+
+addShipToBoard(ship, x, y, isHorizontal)
+    - if out of bounds, throw Error
+    - if intersect with other ship on board, throw error
+    - if reach here, valid coords and orientation
+    - add ship reference to corresponding board nodes 
+
+game.init()
+    - randomly place all pieces onto valid positions on board
+    - Player can change piece location using addShipToBoard
+
+8/29/23
+
+Milton Bradley Game Instructions:
+https://www.hasbro.com/common/instruct/battleship.pdf
+
+Computer AI Strategy:
+
+- Keep prevHit node as reference that holds ship (or just ship length) reference and coordinates
+
+- Keep array of prevHits in case hit multiple ships before sinking one
+
+If NO ship has been hit AND NOT yet sunk
+    Move along main diagonal nodes from 0,0 -> 9,9 then 0,9 -> 9,0
+    If main diagonal nodes have all been shot
+        Pick random node from empty nodes
+Else ship has been hit AND NOT yet sunk
+
+
+Game Logic:
+
+- Place ships randomly on Player and Computer's gameboard
+- Player can change position and orientation of each piece
+- Once Player is ready AND all ships have valid positions
+    - Start game with Player going first
+
+- Player selects coordinates (one shot per turn)
+- If coordinates are empty
+    - Display 'Miss!' and put white peg in gameboard node
+- Else coordinates have ship
+    - Display 'Hit! <Ship Name>!' and put red peg in gameboard node
+    - If ship has been sunk
+        - Display 'You sunk my <Ship name>!' and mark <Ship> as sunk on side
+    - If all ships have been sunk
+        - End game and display Player as winner
+        - Display button to start new game
