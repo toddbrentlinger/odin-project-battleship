@@ -2,6 +2,7 @@ import { createElement } from "../utilities";
 import BaseComponent from "./baseComponent";
 import ExplosionGIF from "../gifs/explosion.gif";
 import SplashGIF from "../gifs/water-splash.gif";
+import ShipComponent from "./shipComponent";
 
 class GameboardComponent extends BaseComponent {
     constructor(props) {
@@ -19,12 +20,30 @@ class GameboardComponent extends BaseComponent {
 
         this.element.appendChild(this.renderTable());
 
-        //this.element.appendChild(this.renderShips());
+        this.element.appendChild(this.renderShips());
 
         return this.element;
     }
 
     renderShips() {
+        const { board } = this.props;
+
+        this.shipsTableElement = createElement('table', {'class': 'ships-table'});
+
+        this.shipsTableElement.append(
+            ...board.ships.map((ship) => {
+                return new ShipComponent({
+                    name: ship.name,
+                    length: ship.length,
+                    boardSize: board.size,
+                }).render()
+            })
+        );
+
+        return this.shipsTableElement;
+    }
+
+    renderShipsOld() {
         const { board } = this.props;
         let shipElement;
 

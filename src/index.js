@@ -4,7 +4,7 @@ import HeaderComponent from './components/headerComponent';
 import GameboardComponent from './components/gameboardComponent';
 import FooterComponent from './components/footerComponent';
 import { createElement } from './utilities';
-import Game from './game/game';
+//import Game from './game/game';
 import GameLoopConsole from './game/gameLoopConsole';
 
 // window.game = Game;
@@ -15,8 +15,8 @@ document.body.append(
         title: 'Battleship'
     }).render(),
     createElement('main', {}, 
-        (new GameboardComponent).render(),
-        (new GameboardComponent).render()
+        (new GameboardComponent({board: GameLoopConsole.game.playerBoard})).render(),
+        (new GameboardComponent({board: GameLoopConsole.game.computerBoard})).render()
     ),
     new FooterComponent({
         copyrightYear: 2023, 
@@ -24,4 +24,4 @@ document.body.append(
     }).render(),
 );
 
-GameLoopConsole.play();
+//GameLoopConsole.play();
