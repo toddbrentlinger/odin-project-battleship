@@ -114,6 +114,13 @@ footer {
         }
     }
 
+    .ship {
+        border: 1px solid var(--base-black, black);
+        display: inline-block;
+        position: absolute;
+        transform-origin: bottom left;
+    }
+
     .ships-table {
         position: absolute;
         top: 0;
@@ -123,12 +130,7 @@ footer {
 
         table-layout: fixed;
         border-collapse: collapse;
-        border: 2px solid black;
+        border: 2px solid var(--base-black, black);
         cursor: pointer;
-
-        .ship {
-            border: 2px solid red;
-            display: inline-block;
-        }
     }
 }

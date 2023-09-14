@@ -4,19 +4,19 @@ import HeaderComponent from './components/headerComponent';
 import GameboardComponent from './components/gameboardComponent';
 import FooterComponent from './components/footerComponent';
 import { createElement } from './utilities';
-//import Game from './game/game';
+import Game from './game/game';
 import GameLoopConsole from './game/gameLoopConsole';
 
-// window.game = Game;
-// Game.createNew();
+window.game = Game;
+Game.createNew();
 
 document.body.append(
     new HeaderComponent({
         title: 'Battleship'
     }).render(),
     createElement('main', {}, 
-        (new GameboardComponent({board: GameLoopConsole.game.playerBoard})).render(),
-        (new GameboardComponent({board: GameLoopConsole.game.computerBoard})).render()
+        (new GameboardComponent({board: Game.playerBoard})).render(),
+        (new GameboardComponent({board: Game.computerBoard})).render()
     ),
     new FooterComponent({
         copyrightYear: 2023, 
