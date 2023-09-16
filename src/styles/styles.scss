@@ -7,6 +7,9 @@
     --primary-bg: #455a64;
     --primary-bg-light: rgb(120, 144, 156);
     --primary-bg-dark: rgb(38, 50, 56);
+
+    --ship-hit-color: red;
+    --ship-miss-color: blue;
 }
 
 html {
@@ -51,8 +54,13 @@ main {
     grid-area: main;
     width: 80%;
     max-width: 70rem;
+    min-width: 25rem;
     margin: 0 auto;
     padding: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: space-between;
 }
 
 footer {
@@ -68,8 +76,8 @@ footer {
 .gameboard-container {
     position: relative;
     width: 100%;
-    min-width: 11rem;
     max-width: 30rem;
+    display: inline-block;
 
     &::before {
         content: "";
@@ -88,6 +96,18 @@ footer {
         border-collapse: collapse;
         border: 2px solid black;
         cursor: pointer;
+
+        .gameboard-node {
+            opacity: 50%;
+
+            &.hit {
+                background-color: var(--ship-hit-color, red);
+            }
+
+            &.miss {
+                background-color: var(--ship-miss-color, blue);
+            }
+        }
         
     
         td, th {
@@ -119,6 +139,7 @@ footer {
         display: inline-block;
         position: absolute;
         transform-origin: bottom left;
+        z-index: -1;
     }
 
     .ships-table {

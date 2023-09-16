@@ -3,6 +3,8 @@ import BaseComponent from "./baseComponent";
 import ExplosionGIF from "../gifs/explosion.gif";
 import SplashGIF from "../gifs/water-splash.gif";
 import ShipComponent from "./shipComponent";
+import ExplosionMP3 from "../audio/explosion.mp3";
+import SplashMP3 from "../audio/water-splosh.mp3";
 
 class GameboardComponent extends BaseComponent {
     constructor(props) {
@@ -147,11 +149,10 @@ class GameboardComponent extends BaseComponent {
         this.boardTableElement = createElement('table', {'class': 'gameboard'});
 
         let content;
-        let dataElement;
-        for (let i = 0; i < this.props.board.size + 1; i++) {
+        for (let i = 0; i < board.size + 1; i++) {
             let rowElement = this.boardTableElement.appendChild(createElement('tr', {}));
 
-            for (let j = 0; j < this.props.board.size + 1; j++) {
+            for (let j = 0; j < board.size + 1; j++) {
                 // First row
                 if (i === 0) {
                     // If first column
@@ -194,12 +195,26 @@ class GameboardComponent extends BaseComponent {
 }
 
 class GameboardNodeComponent extends BaseComponent {
+    static SplashAudio = new Audio(SplashMP3);
+    static ExplosionAudio = new Audio(ExplosionMP3);
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            hasAttacked: false,
+        };
+    }
+
     handleClick() {
+        if (this.state.hasAttacked) { return; }
+
         const { x, y } = this.props;
 
         console.log(`Clicked x: ${x} - y: ${y}`);
         
         Math.floor(Math.random() * 2) ? this.setMiss() : this.setAttack();
+
+        this.state.hasAttacked = true;
     }
 
     render() {
@@ -221,19 +236,25 @@ class GameboardNodeComponent extends BaseComponent {
 
     setAttack() {
         this.element.style.backgroundImage = `url(${ExplosionGIF})`;
-        this.element.style.backgroundColor = 'inherit';
+
+        GameboardNodeComponent.ExplosionAudio.currentTime = 0;
+        GameboardNodeComponent.ExplosionAudio.play();
+
         setTimeout(() => {
             this.element.style.backgroundImage = null;
-            this.element.style.backgroundColor = 'red';
+            this.element.classList.add('hit');
         }, 1700);
     }
 
     setMiss() {
         this.element.style.backgroundImage = `url(${SplashGIF})`;
-        this.element.style.backgroundColor = 'inherit';
+
+        GameboardNodeComponent.SplashAudio.currentTime = 0;
+        GameboardNodeComponent.SplashAudio.play();
+
         setTimeout(() => {
             this.element.style.backgroundImage = null;
-            this.element.style.backgroundColor = 'blue';
+            this.element.classList.add('miss');
         }, 1500);
     }
 }
