@@ -7,12 +7,6 @@ import ExplosionMP3 from "../audio/explosion.mp3";
 import SplashMP3 from "../audio/water-splosh.mp3";
 
 class GameboardComponent extends BaseComponent {
-    constructor(props) {
-        super(props);
-        this.boardTableElement = null;
-        this.shipsTableElement = null;
-    }
-
     isShipOrientationHorizontal(ship, nRow, nCol) {
         const { board } = this.props;
 
@@ -90,15 +84,17 @@ class GameboardComponent extends BaseComponent {
     }
 
     render() {
-        const { board } = this.props;
+        const { board, name } = this.props;
 
-        this.initializeRender();
+        this.initializeRender('section');
 
-        this.element.classList.add('gameboard-container');
-
-        this.element.appendChild(this.renderTable());
-
-        this.element.append(...this.renderShips());
+        this.element.append(
+            createElement('h2', {}, name),
+            createElement('div', {'class': 'gameboard-container'},
+                this.renderTable(),
+                ...this.renderShips()
+            ),
+        );
 
         return this.element;
     }
@@ -120,37 +116,14 @@ class GameboardComponent extends BaseComponent {
         });
     }
 
-    renderShipsOld() {
-        const { board } = this.props;
-        let shipElement;
-
-        this.shipsTableElement = createElement('table', {'class': 'ships-table'});
-        this.shipsTableElement.style = `grid-template-rows: repeat(${board.size + 1}, 1fr);`
-
-        board.ships.forEach((ship) => {
-            shipElement = this.shipsTableElement.appendChild(
-                createElement('tr', {'class': 'ship'})
-            );
-            shipElement.style = `grid-template-columns: repeat(${board.size + 1}, 1fr);`;
-
-            for (let i = 0; i < ship.length; i++) {
-                shipElement.appendChild(
-                    createElement('td', {}, ship.name[0])
-                );
-            }
-        });
-
-        return this.shipsTableElement;
-    }
-
     renderTable() {
-        const { board } = this.props;
+        const { board, handleClick } = this.props;
 
-        this.boardTableElement = createElement('table', {'class': 'gameboard'});
+        const boardTableElement = createElement('table', {'class': 'gameboard'});
 
         let content;
         for (let i = 0; i < board.size + 1; i++) {
-            let rowElement = this.boardTableElement.appendChild(createElement('tr', {}));
+            let rowElement = boardTableElement.appendChild(createElement('tr', {}));
 
             for (let j = 0; j < board.size + 1; j++) {
                 // First row
@@ -183,6 +156,7 @@ class GameboardComponent extends BaseComponent {
                                 children: [createElement('span', {}, '\u00A0'),],
                                 x: i - 1,
                                 y: j - 1,
+                                handleClick: handleClick,
                             }).render()
                         );
                     }
@@ -190,9 +164,13 @@ class GameboardComponent extends BaseComponent {
             }
         }
 
-        return this.boardTableElement;
+        return boardTableElement;
     }
 }
+
+GameboardComponent.defaultProps = {
+    handleClick: (x,y) => console.log(`x: ${x}, y: ${y}`)
+};
 
 class GameboardNodeComponent extends BaseComponent {
     static SplashAudio = new Audio(SplashMP3);
@@ -208,13 +186,30 @@ class GameboardNodeComponent extends BaseComponent {
     handleClick() {
         if (this.state.hasAttacked) { return; }
 
-        const { x, y } = this.props;
+        const ship = this.props.handleClick(this.props.x, this.props.y);
 
-        console.log(`Clicked x: ${x} - y: ${y}`);
-        
-        Math.floor(Math.random() * 2) ? this.setMiss() : this.setAttack();
+        // If ship reference returned, ship was hit
+        if (ship) {
+            this.setAttack();
+        }
+        // Else ship is null, ships were missed 
+        else if (ship === null) {
+            this.setMiss();
+        }
+        // Else ship is undefined, return without any effect 
+        else {
+            return;
+        }
 
         this.state.hasAttacked = true;
+
+        // const { x, y } = this.props;
+
+        // console.log(`Clicked x: ${x} - y: ${y}`);
+        
+        // Math.floor(Math.random() * 2) ? this.setMiss() : this.setAttack();
+
+        // this.state.hasAttacked = true;
     }
 
     render() {
