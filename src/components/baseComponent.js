@@ -3,22 +3,14 @@ import { createElement } from '../utilities.js';
 export default class BaseComponent {
     constructor(props) {
         this._element = null;
-        this._props = props;
+        this.props = {...props, ...this.constructor.defaultProps};
+        this.state = {};
     }
 
     // Getters/Setters
 
     get element() {
         return this._element;
-    }
-
-    get props() {
-        return this._props;
-    }
-
-    set props(newProps) {
-        this._props = newProps;
-        this.render();
     }
 
     // Methods
@@ -48,4 +40,12 @@ export default class BaseComponent {
 
         return this._element;
     }
+
+    setState(newState) {
+        this.state = newState;
+
+        this.render();
+    }
 }
+
+BaseComponent.defaultProps = {};
