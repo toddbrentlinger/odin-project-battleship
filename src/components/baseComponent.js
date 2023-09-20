@@ -3,7 +3,7 @@ import { createElement } from '../utilities.js';
 export default class BaseComponent {
     constructor(props) {
         this._element = null;
-        this.props = {...props, ...this.constructor.defaultProps};
+        this.props = {...this.constructor.defaultProps, ...props};
         this.state = {};
     }
 
