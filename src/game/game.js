@@ -44,6 +44,12 @@ const Game = (() => {
         // Display winner and end message
     };
 
+    /**
+     * 
+     * @param {*} x Horizontal coordinate (zero-based)
+     * @param {*} y Vertical coordinate (zero-based)
+     * @returns {Ship|null} Ship reference if hit or null if miss
+     */
     const enterPlayerAttack = (x, y) => {
         // Return if NOT Playing state OR NOT player's turn
         if (state !== GameState.Playing || !isPlayersTurn) { return; }
@@ -51,7 +57,7 @@ const Game = (() => {
         console.log('Player attacks!');
 
         // Send attack coordinates to computer's board, throwing error if NOT valid
-        gameboards.computer.recieveAttack(x,y);
+        const target = gameboards.computer.recieveAttack(x,y);
 
         // Check if computer has lost
         if (gameboards.computer.areAllShipsSunk()) {
@@ -60,8 +66,14 @@ const Game = (() => {
 
         // Set isPlayersTurn flag to false to prevent another player attack before computer can make an attack
         isPlayersTurn = false;
+
+        return target;
     };
 
+    /**
+     * 
+     * @returns {Ship|null}
+     */
     const makeComputerAttack = () => {
         // Return if NOT Playing state OR NOT computer's turn
         if (state !== GameState.Playing || isPlayersTurn) { return; }
@@ -70,15 +82,17 @@ const Game = (() => {
 
         // Make computer attack
         let validAttack = false;
+        let target, x, y;
         while (!validAttack) {
+            x = Math.floor(Math.random() * boardSize);
+            y = Math.floor(Math.random() * boardSize);
+
             try {
-                gameboards.player.recieveAttack(
-                    Math.floor(Math.random() * boardSize),
-                    Math.floor(Math.random() * boardSize)
-                );
+                target = gameboards.player.recieveAttack(x,y);
+                
                 validAttack = true;
             } catch(e) {
-                
+
             }
         }
 
@@ -89,6 +103,12 @@ const Game = (() => {
 
         // Set isPlayersTurn flag so Player can make next attack
         isPlayersTurn = true;
+
+        return {
+            target,
+            x,
+            y,
+        };
     };
 
     return {

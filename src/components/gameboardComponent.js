@@ -7,6 +7,30 @@ import ExplosionMP3 from "../audio/explosion.mp3";
 import SplashMP3 from "../audio/water-splosh.mp3";
 
 class GameboardComponent extends BaseComponent {
+    constructor(props) {
+        super(props);
+        this.boardNodes = [];
+    }
+
+    createBoardNodes() {
+        const { board, handleClick } = this.props;
+
+        this.boardNodes = [];
+        let size = board.size;
+        for (let row = 0; row < size; row++) {
+            this.boardNodes[row] = Array(size);
+
+            for (let col = 0; col < size; col++) {
+                this.boardNodes[row][col] = new GameboardNodeComponent({
+                    children: [createElement('span', {}, '\u00A0'),],
+                    x: col,
+                    y: row,
+                    handleClick: handleClick,
+                })
+            }
+        }
+    }
+
     isShipOrientationHorizontal(ship, nRow, nCol) {
         const { board } = this.props;
 
@@ -121,6 +145,8 @@ class GameboardComponent extends BaseComponent {
 
         const boardTableElement = createElement('table', {'class': 'gameboard'});
 
+        this.createBoardNodes();
+
         let content;
         for (let i = 0; i < board.size + 1; i++) {
             let rowElement = boardTableElement.appendChild(createElement('tr', {}));
@@ -152,12 +178,7 @@ class GameboardComponent extends BaseComponent {
                     // Else NOT first column 
                     else {
                         rowElement.appendChild(
-                            new GameboardNodeComponent({
-                                children: [createElement('span', {}, '\u00A0'),],
-                                x: i - 1,
-                                y: j - 1,
-                                handleClick: handleClick,
-                            }).render()
+                            this.boardNodes[i - 1][j - 1].render()
                         );
                     }
                 }
@@ -169,7 +190,10 @@ class GameboardComponent extends BaseComponent {
 }
 
 GameboardComponent.defaultProps = {
-    handleClick: (x,y) => console.log(`x: ${x}, y: ${y}`)
+    handleClick: (x,y) => {
+        console.log(`x: ${x}, y: ${y}`);
+        return [null, null];
+    },
 };
 
 class GameboardNodeComponent extends BaseComponent {
@@ -183,10 +207,14 @@ class GameboardNodeComponent extends BaseComponent {
         };
     }
 
-    handleClick() {
+    /**
+     * 
+     * @param {Ship|null|undefined} ship 
+     * @param {Function|undefined} callback 
+     * @returns 
+     */
+    attack(ship, callback) {
         if (this.state.hasAttacked) { return; }
-
-        const ship = this.props.handleClick(this.props.x, this.props.y);
 
         // If ship reference returned, ship was hit
         if (ship) {
@@ -203,13 +231,13 @@ class GameboardNodeComponent extends BaseComponent {
 
         this.state.hasAttacked = true;
 
-        // const { x, y } = this.props;
+        if (callback) {
+            callback();
+        }
+    }
 
-        // console.log(`Clicked x: ${x} - y: ${y}`);
-        
-        // Math.floor(Math.random() * 2) ? this.setMiss() : this.setAttack();
-
-        // this.state.hasAttacked = true;
+    handleClick() {
+        this.attack(...this.props.handleClick(this.props.x, this.props.y));
     }
 
     render() {
@@ -233,6 +261,7 @@ class GameboardNodeComponent extends BaseComponent {
         this.element.style.backgroundImage = `url(${ExplosionGIF})`;
 
         GameboardNodeComponent.ExplosionAudio.currentTime = 0;
+        GameboardNodeComponent.ExplosionAudio.volume = 0.4;
         GameboardNodeComponent.ExplosionAudio.play();
 
         setTimeout(() => {

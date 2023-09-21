@@ -7,7 +7,14 @@ class PlayerGameboardComponent extends GameboardComponent {
             ...props,
             board: Game.playerBoard,
             name: 'Player',
+            handleClick: () => [],
         });
+    }
+
+    attack() {
+        const {target, x, y} = Game.makeComputerAttack();
+
+        this.boardNodes[y][x].attack(target);
     }
 }
 

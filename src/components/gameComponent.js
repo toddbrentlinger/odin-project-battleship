@@ -37,9 +37,7 @@ class GameComponent extends BaseComponent {
     }
 
     handleComputerAttack() {
-        const {target, x, y} = Game.makeComputerAttack();
-
-        this.computerGameboardComponent.attack(x, y);
+        this.playerGameboardComponent.attack();
     }
 
     handlePlayerAttack(x,y) {
@@ -52,8 +50,8 @@ class GameComponent extends BaseComponent {
     handlePlayerPostAttack() {
         // Check if Player has won
         // TODO
-        debugger;
-        setTimeout(this.handleComputerAttack.bind(this), 1000);
+        
+        setTimeout(this.handleComputerAttack.bind(this), 2000);
     }
 
     render() {
