@@ -1,9 +1,10 @@
 import BaseComponent from "./baseComponent";
-import Game from "../game/game";
+import Game, { GameState } from "../game/game";
 import PlayerGameboardComponent from "./playerGameboardComponent";
 import ComputerGameboardComponent from "./computerGameboardComponent";
 import { createElement } from "../utilities";
 import GameCreateStartButton from "./gameCreateStartButton";
+import GameEndMessageModal from "./gameEndMessageModal";
 
 class GameComponent extends BaseComponent {
     constructor(props) {
@@ -18,6 +19,8 @@ class GameComponent extends BaseComponent {
         this.computerGameboardComponent = new ComputerGameboardComponent({
             handleClick: this.handlePlayerAttack,
         });
+
+        this.gameEndMessageModal = null;
     }
 
     handleCreateGameClick() {
@@ -41,6 +44,8 @@ class GameComponent extends BaseComponent {
     }
 
     handlePlayerAttack(x,y) {
+        if (Game.state !== GameState.Playing) { return; }
+
         const output = Game.enterPlayerAttack(x,y);
         console.log(output);
 
@@ -49,7 +54,13 @@ class GameComponent extends BaseComponent {
 
     handlePlayerPostAttack() {
         // Check if Player has won
-        // TODO
+        if (Game.state === GameState.Finished) {
+            // Display win message
+            this.gameEndMessageModal = new GameEndMessageModal({isPlayerWinner: true});
+            this.element.prepend(this.gameEndMessageModal.render());
+            
+            return;
+        }
         
         setTimeout(this.handleComputerAttack.bind(this), 2000);
     }

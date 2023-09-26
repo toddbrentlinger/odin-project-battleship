@@ -57,10 +57,7 @@ main {
     min-width: 25rem;
     margin: 0 auto;
     padding: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    align-content: center;
-    justify-content: space-between;
+    position: relative;
 }
 
 footer {
@@ -71,13 +68,57 @@ footer {
     font-size: 1.2rem;
 }
 
+// Custom IDs
+
+#game-end-message-modal-container {
+    z-index: 10;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    #game-end-message-modal {
+        background-color: var(--base-white, white);
+        border: 2px solid var(--base-black, black);
+        padding: 1rem;
+
+        #game-end-message-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+}
+
+#gameboards-all {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    gap: 1rem;
+
+    section {
+        width: 100%;
+        max-width: 30rem;
+        display: inline-block;
+
+        h2 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+    }
+}
+
 // Custom Classes
 
 .gameboard-container {
     position: relative;
-    width: 100%;
-    max-width: 30rem;
-    display: inline-block;
+    // width: 100%;
+    // max-width: 30rem;
+    // display: inline-block;
 
     &::before {
         content: "";
