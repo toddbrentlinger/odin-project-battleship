@@ -114,6 +114,15 @@ footer {
 
 // Custom Classes
 
+.game-create-start-btn-container {
+    display: flex;
+    justify-content: center;
+
+    button {
+        padding: 0.5em 1em;
+    }
+}
+
 .gameboard-container {
     position: relative;
     // width: 100%;
@@ -124,6 +133,32 @@ footer {
         content: "";
         display: block;
         padding-top: 100%;
+    }
+
+    .board-end-game-effect {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-repeat: no-repeat;
+
+        &.board-end-game-effect-lost {
+            //background-color: red;
+            //background-image: url(https://media.tenor.com/ISbK0fVpFJEAAAAC/chemistry-fire.gif);
+            background-image: url('../gifs/fire.gif');
+            background-size: contain;
+            background-position: bottom;
+            opacity: 0.5;
+        }
+
+        &.board-end-game-effect-won {
+            //background-color: green;
+            //background-image: url(https://media2.giphy.com/media/26tOZ42Mg6pbTUPHW/giphy.gif?cid=ecf05e47xm0dmnmag8fw0139pmkp9tkwv59fp2appkfigt7w&ep=v1_gifs_search&rid=giphy.gif&ct=g);
+            background-image: url('../gifs/fireworks.gif');
+            background-size: cover;
+            opacity: 0.5;
+        }
     }
 
     .gameboard {

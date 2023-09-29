@@ -10,6 +10,23 @@ class GameboardComponent extends BaseComponent {
     constructor(props) {
         super(props);
         this.boardNodes = [];
+        this.gameboardElement = null;
+    }
+
+    addBoardLostEffect() {
+        const boardEffectComponent = this.gameboardElement.appendChild(
+            document.createElement('div')
+        );
+
+        boardEffectComponent.classList.add('board-end-game-effect', 'board-end-game-effect-lost');
+    }
+
+    addBoardWonEffect() {
+        const boardEffectComponent = this.gameboardElement.appendChild(
+            document.createElement('div')
+        );
+
+        boardEffectComponent.classList.add('board-end-game-effect', 'board-end-game-effect-won');
     }
 
     createBoardNodes() {
@@ -112,12 +129,14 @@ class GameboardComponent extends BaseComponent {
 
         this.initializeRender('section');
 
+        this.gameboardElement = createElement('div', {'class': 'gameboard-container'},
+            this.renderTable(),
+            ...this.renderShips()
+        );
+
         this.element.append(
             createElement('h2', {}, name),
-            createElement('div', {'class': 'gameboard-container'},
-                this.renderTable(),
-                ...this.renderShips()
-            ),
+            this.gameboardElement,
         );
 
         return this.element;
@@ -237,7 +256,9 @@ class GameboardNodeComponent extends BaseComponent {
     }
 
     handleClick() {
-        this.attack(...this.props.handleClick(this.props.x, this.props.y));
+        const output = this.props.handleClick(this.props.x, this.props.y);
+        if (output === undefined) { return; }
+        this.attack(...output);
     }
 
     render() {
@@ -261,7 +282,7 @@ class GameboardNodeComponent extends BaseComponent {
         this.element.style.backgroundImage = `url(${ExplosionGIF})`;
 
         GameboardNodeComponent.ExplosionAudio.currentTime = 0;
-        GameboardNodeComponent.ExplosionAudio.volume = 0.4;
+        GameboardNodeComponent.ExplosionAudio.volume = 0.3;
         GameboardNodeComponent.ExplosionAudio.play();
 
         setTimeout(() => {
