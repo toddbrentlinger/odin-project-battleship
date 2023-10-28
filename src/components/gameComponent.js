@@ -1,6 +1,6 @@
 import BaseComponent from "./baseComponent";
 import Game, { GameState } from "../game/game";
-import PlayerGameboardComponent from "./playerGameboardComponent";
+import UserGameboardComponent from "./userGameboardComponent";
 import ComputerGameboardComponent from "./computerGameboardComponent";
 import { createElement } from "../utilities";
 import GameCreateStartButton from "./gameCreateStartButton";
@@ -14,7 +14,7 @@ class GameComponent extends BaseComponent {
         this.handleStartGameClick = this.handleStartGameClick.bind(this);
         this.handlePlayerAttack = this.handlePlayerAttack.bind(this);
 
-        this.playerGameboardComponent = new PlayerGameboardComponent();
+        this.playerGameboardComponent = new UserGameboardComponent();
         this.computerGameboardComponent = new ComputerGameboardComponent({
             handleClick: this.handlePlayerAttack,
         });
@@ -22,7 +22,7 @@ class GameComponent extends BaseComponent {
 
     handleCreateGameClick() {
         console.log('Create new game!');
-
+        
         Game.createNew();
 
         // Update game boards
@@ -32,7 +32,7 @@ class GameComponent extends BaseComponent {
 
     handleStartGameClick() {
         console.log('Start game!');
-
+        
         Game.play();
     }
 
@@ -42,7 +42,7 @@ class GameComponent extends BaseComponent {
 
     handlePlayerAttack(x,y) {
         if (Game.state !== GameState.Playing) { return; }
-
+        
         const output = Game.enterPlayerAttack(x,y);
         console.log(output);
 
