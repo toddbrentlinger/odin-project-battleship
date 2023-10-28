@@ -17,6 +17,93 @@ GamePiece
     If piece is horizontal, x,y origin is on the left
     If peice is vertical, x,y origin is on the top
 
+10/4/23
+
+GameboardComponent (BaseComponent)
+    boardNodes {GameboardNodeComponent[]}
+    gameboardElement {HTMLElement|null}
+
+    createBoardNodes()
+        Calls createSingleBoardNode() with x,y
+
+    createSingleBoardNode(x,y)
+        Override in child classes to get new functionality
+        inside board nodes
+
+    NOTE: Bottom three functions linked together in functionality
+          Could make static and pass board instance as argument?
+    isShipOrientationHorizontal(ship, nRow, nCol)
+    getShipBoardData()
+    getShipOrigin(ship, nRow, nCol, isHorizontal)
+
+    render()
+        Calls renderTable() and renderShips() 
+    renderShips()
+    renderTable()
+        Calls createBoardNodes() to create array of nodes before
+        each is rendered to table element
+
+GameboardNodeComponent
+    handleClick()
+        NOTE: May not need in base class at all
+        Calls props.handleClick(x,y)
+    render()
+
+-------------------------------------------------------------------------------
+
+PlayerGameboardComponent (GameboardComponent)
+    addBoardLostEffect()
+        - Adds class to display loss effect
+    addBoardWonEffect()
+        - Adds class to display win effect
+    createBoardNodes()
+        OR createSingleBoardNode(x,y) override
+
+PlayerGameboardNodeComponent (GameboardNodeComponent)
+    static SplashAudio {Audio}
+    static ExplosionAudio {Audio}
+    state.hasAttacked {Boolean}
+
+    handleClick
+        super.handleClick OR may need to override since attack depends on output from props.handleClick
+            NOTE: May not need in base class at all
+        attack()
+
+    attack()
+    setAttack()
+        DOM effects only
+    setMiss()
+        DOM effects only
+
+    render()
+        super.render()
+        Add click event listener that calls handleClick
+
+PlayerGameboardMovePiecesComponent (GameboardComponent)
+
+-------------------------------------------------------------------------------
+
+UserGameboardComponent (PlayerGameboardComponent)
+    attack()
+        Call Game.makeComputerAttack() to get computers attack
+        Call corresponding board node attack() method
+
+ComputerGameboardComponent (PlayerGameboardComponent)
+
+9/19/23
+
+- Create attack handler, with x and y arguments, inside Player and Computer GameboardComponent.
+Inside PlayerGameboardComponent, attack handler is passed into handleClick property of GameboardNodes.
+Iniside ComputerGameboardComponent, pass null into handleClick property of GameboardNodes and call attack handler 
+from GameComponent.
+
+GameboardComponent
+    attack(x,y)
+    handleBoardNodeClick: null
+PlayerGameboardComponent
+    Pass attack method to GameboardNode click handler
+ComputerGameboardComponent
+
 9/3/23
 
 - Maybe gameboard.recieveAttack(x,y) returns object with following data:

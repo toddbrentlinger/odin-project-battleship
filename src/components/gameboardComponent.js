@@ -1,10 +1,6 @@
 import { createElement } from "../utilities";
 import BaseComponent from "./baseComponent";
-import ExplosionGIF from "../gifs/explosion.gif";
-import SplashGIF from "../gifs/water-splash.gif";
 import ShipComponent from "./shipComponent";
-import ExplosionMP3 from "../audio/explosion.mp3";
-import SplashMP3 from "../audio/water-splosh.mp3";
 
 class GameboardComponent extends BaseComponent {
     constructor(props) {
@@ -13,22 +9,7 @@ class GameboardComponent extends BaseComponent {
         this.gameboardElement = null;
     }
 
-    addBoardLostEffect() {
-        const boardEffectComponent = this.gameboardElement.appendChild(
-            document.createElement('div')
-        );
-
-        boardEffectComponent.classList.add('board-end-game-effect', 'board-end-game-effect-lost');
-    }
-
-    addBoardWonEffect() {
-        const boardEffectComponent = this.gameboardElement.appendChild(
-            document.createElement('div')
-        );
-
-        boardEffectComponent.classList.add('board-end-game-effect', 'board-end-game-effect-won');
-    }
-
+    /** Fill 2D array with GameboardNodeComponents. */
     createBoardNodes() {
         const { board, handleClick } = this.props;
 
@@ -38,16 +19,39 @@ class GameboardComponent extends BaseComponent {
             this.boardNodes[row] = Array(size);
 
             for (let col = 0; col < size; col++) {
-                this.boardNodes[row][col] = new GameboardNodeComponent({
-                    children: [createElement('span', {}, '\u00A0'),],
-                    x: col,
-                    y: row,
-                    handleClick: handleClick,
-                })
+                this.boardNodes[row][col] = this.createSingleBoardNode(
+                    col,
+                    row,
+                    handleClick
+                );
             }
         }
     }
 
+    /**
+     * Creates a single GameboardNodeComponent with position and click handler.
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {Function} handleClick 
+     * @returns {GameboardNodeComponent}
+     */
+    createSingleBoardNode(x, y, handleClick) {
+        return new GameboardNodeComponent({
+            children: [createElement('span', {}, '\u00A0'),],
+            x: x,
+            y: y,
+            handleClick: handleClick,
+        });
+    }
+
+    /**
+     * Returns boolean if ship at node is horizontal or throws error if ship 
+     * NOT at node or not in any adjacent nodes.
+     * @param {Ship} ship 
+     * @param {Number} nRow 
+     * @param {Number} nCol 
+     * @returns {Boolean|Error}
+     */
     isShipOrientationHorizontal(ship, nRow, nCol) {
         const { board } = this.props;
 
@@ -55,7 +59,6 @@ class GameboardComponent extends BaseComponent {
         if (board.board[nRow][nCol].ship !== ship) {
             throw new Error('Ship NOT at gameboard node');
         }
-        //debugger;
         // If same ship to left of node
         if (nCol > 0 && board.board[nRow][nCol - 1].ship === ship) {
             return true;
@@ -76,6 +79,14 @@ class GameboardComponent extends BaseComponent {
         throw new Error('Ship is NOT in any adjacent nodes');
     }
 
+    /**
+     * Returns of ship names with it's gameboard node position and orientation.
+     * @returns {Object} obj Object with keys as ship names and value as object of ship data
+     * @returns {Object} obj.shipName
+     * @returns {Number} obj.shipName.x
+     * @returns {Number} obj.shipName.y
+     * @returns {Boolean} obj.shipName.isHorizontal
+     */
     getShipBoardData() {
         const { board } = this.props;
         const data = {};
@@ -101,6 +112,14 @@ class GameboardComponent extends BaseComponent {
         return data;
     }
 
+    /**
+     * Returns ship origin position on gameboard.
+     * @param {Ship} ship 
+     * @param {Number} nRow 
+     * @param {Number} nCol 
+     * @param {Boolean} isHorizontal 
+     * @returns {Array} Array with x and y position of ship origin on gameboard
+     */
     getShipOrigin(ship, nRow, nCol, isHorizontal) {
         const { board } = this.props;
 
@@ -124,6 +143,10 @@ class GameboardComponent extends BaseComponent {
         return [nCol, nRow];
     }
 
+    /**
+     * Creates and returns rendered element of this GameboardComponent with table and ships.
+     * @returns {HTMLElement}
+     */
     render() {
         const { board, name } = this.props;
 
@@ -142,12 +165,16 @@ class GameboardComponent extends BaseComponent {
         return this.element;
     }
 
+    /**
+     * Creates array of ship elements to be added on top of gameboard table element.
+     * @returns {HTMLElement[]}
+     */
     renderShips() {
         const { board } = this.props;
         const shipData = this.getShipBoardData();
         console.log(shipData);
 
-        return board.ships.map((ship, index) => {
+        return board.ships.map((ship) => {
             return new ShipComponent({
                 name: ship.name,
                 length: ship.length,
@@ -159,8 +186,12 @@ class GameboardComponent extends BaseComponent {
         });
     }
 
+    /**
+     * Creates and returns empty gameboard as a table element filled with GameboardNodeComponents.
+     * @returns {HTMLElement}
+     */
     renderTable() {
-        const { board, handleClick } = this.props;
+        const { board } = this.props;
 
         const boardTableElement = createElement('table', {'class': 'gameboard'});
 
@@ -216,51 +247,6 @@ GameboardComponent.defaultProps = {
 };
 
 class GameboardNodeComponent extends BaseComponent {
-    static SplashAudio = new Audio(SplashMP3);
-    static ExplosionAudio = new Audio(ExplosionMP3);
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            hasAttacked: false,
-        };
-    }
-
-    /**
-     * 
-     * @param {Ship|null|undefined} ship 
-     * @param {Function|undefined} callback 
-     * @returns 
-     */
-    attack(ship, callback) {
-        if (this.state.hasAttacked) { return; }
-
-        // If ship reference returned, ship was hit
-        if (ship) {
-            this.setAttack();
-        }
-        // Else ship is null, ships were missed 
-        else if (ship === null) {
-            this.setMiss();
-        }
-        // Else ship is undefined, return without any effect 
-        else {
-            return;
-        }
-
-        this.state.hasAttacked = true;
-
-        if (callback) {
-            callback();
-        }
-    }
-
-    handleClick() {
-        const output = this.props.handleClick(this.props.x, this.props.y);
-        if (output === undefined) { return; }
-        this.attack(...output);
-    }
-
     render() {
         const { children, x, y } = this.props;
 
@@ -273,35 +259,9 @@ class GameboardNodeComponent extends BaseComponent {
         this.element.dataset.x = x;
         this.element.dataset.y = y;
 
-        this.element.addEventListener('click', this.handleClick.bind(this));
-
         return this.element;
-    }
-
-    setAttack() {
-        this.element.style.backgroundImage = `url(${ExplosionGIF})`;
-
-        GameboardNodeComponent.ExplosionAudio.currentTime = 0;
-        GameboardNodeComponent.ExplosionAudio.volume = 0.3;
-        GameboardNodeComponent.ExplosionAudio.play();
-
-        setTimeout(() => {
-            this.element.style.backgroundImage = null;
-            this.element.classList.add('hit');
-        }, 1700);
-    }
-
-    setMiss() {
-        this.element.style.backgroundImage = `url(${SplashGIF})`;
-
-        GameboardNodeComponent.SplashAudio.currentTime = 0;
-        GameboardNodeComponent.SplashAudio.play();
-
-        setTimeout(() => {
-            this.element.style.backgroundImage = null;
-            this.element.classList.add('miss');
-        }, 1500);
     }
 }
 
 export default GameboardComponent;
+export { GameboardNodeComponent };

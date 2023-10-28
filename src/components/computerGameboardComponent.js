@@ -1,7 +1,7 @@
-import GameboardComponent from "./gameboardComponent";
+import PlayerGameboardComponent from "./playerGameboardComponent";
 import Game from "../game/game";
 
-class ComputerGameboardComponent extends GameboardComponent {
+class ComputerGameboardComponent extends PlayerGameboardComponent {
     constructor(props) {
         super({
             ...props,
