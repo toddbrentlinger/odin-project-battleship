@@ -106,6 +106,9 @@ export default function Gameboard(size = 10) {
         
         // Add ship to board
         addShipToBoard(ship, x, y, isHorizontal);
+
+        // Reset ship properties
+        ship.reset();
     };
 
     /**
@@ -188,13 +191,13 @@ export default function Gameboard(size = 10) {
     };
 
     /* Print game board to console. */
-    const printBoard = () => {
+    const printBoard = (hideShip = false) => {
         let boardStr = '';
 
         board.forEach((row) => {
             row.forEach((col) => {
                 if (col.ship) {
-                    boardStr += col.isAttacked ? ' X ' : ` ${col.ship.name[0]} `;
+                    boardStr += col.isAttacked ? ' X ' : ` ${hideShip ? '-' : col.ship.name[0]} `;
                 } else {
                     boardStr += col.isAttacked ? ' O ' : ' - ';
                 }
@@ -205,6 +208,12 @@ export default function Gameboard(size = 10) {
         console.log(boardStr);
     };
 
+    /**
+     * 
+     * @param {*} x Horizontal coordinate (zero-based)
+     * @param {*} y Vertical coordinate (zero-based)
+     * @returns {Ship|null} Ship reference if hit or null if miss
+     */
     const recieveAttack = (x, y) => {
         // Check attack is within board
         if (x < 0 || x > size - 1 || y < 0 || y > size - 1) {
@@ -254,8 +263,10 @@ export default function Gameboard(size = 10) {
     return {
         get board() { return board; },
         get ships() { return ships; },
+        get size() { return size; },
         addShipToBoardCustom,
         addShipToBoardRandom,
+        areAllShipsSunk,
         clampCoordinatesToBoard,
         init,
         isPieceOverlapping,

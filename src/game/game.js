@@ -89,7 +89,7 @@ const Game = (() => {
 
             try {
                 target = gameboards.player.recieveAttack(x,y);
-                
+
                 validAttack = true;
             } catch(e) {
 
