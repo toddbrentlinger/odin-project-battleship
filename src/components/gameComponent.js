@@ -37,7 +37,19 @@ class GameComponent extends BaseComponent {
     }
 
     handleComputerAttack() {
-        this.playerGameboardComponent.attack();
+        this.playerGameboardComponent.attack(
+            this.handleComputerPostAttack.bind(this)
+        );
+    }
+
+    handleComputerPostAttack() {
+        console.log('handleComputerPostAttack');
+        // Check if Computer has won
+        if (Game.state === GameState.Finished) {
+            // Display win message
+            this.computerGameboardComponent.addBoardWonEffect();
+            this.playerGameboardComponent.addBoardLostEffect();
+        }
     }
 
     handlePlayerAttack(x,y) {
@@ -50,11 +62,12 @@ class GameComponent extends BaseComponent {
     }
 
     handlePlayerPostAttack() {
+        console.log('handlePlayerPostAttack');
         // Check if Player has won
         if (Game.state === GameState.Finished) {
             // Display win message
-            this.computerGameboardComponent.addBoardWonEffect();
-            this.playerGameboardComponent.addBoardLostEffect();
+            this.computerGameboardComponent.addBoardLostEffect();
+            this.playerGameboardComponent.addBoardWonEffect();
             
             return;
         }

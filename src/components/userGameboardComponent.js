@@ -11,10 +11,10 @@ class UserGameboardComponent extends PlayerGameboardComponent {
         });
     }
 
-    attack() {
+    attack(callback) {
         const {target, x, y} = Game.makeComputerAttack();
 
-        this.boardNodes[y][x].attack(target);
+        this.boardNodes[y][x].attack(target, callback);
     }
 }
 
